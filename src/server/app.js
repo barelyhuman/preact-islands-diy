@@ -11,10 +11,12 @@ const app = express()
 const port = process.env.PORT || 3000
 
 app.get('/', async (req, res) => {
+  const body = preactRenderToString(h(HomePage, {}))
+  const styles = extractCss()
   res.send(
     withManifestBundles({
-      styles: extractCss(),
-      body: preactRenderToString(h(HomePage, {})),
+      styles,
+      body,
     })
   )
 })

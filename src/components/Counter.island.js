@@ -1,5 +1,10 @@
+import { h } from 'preact'
 import { useState } from 'preact/hooks'
-import { styled } from 'goober'
+import { setup, styled } from 'goober'
+import { onClientOnly } from '../lib/client'
+
+// need to reinit on client, since there's no wrapper app
+onClientOnly(() => setup(h))
 
 const Button = styled('button')`
   background: #efefef;

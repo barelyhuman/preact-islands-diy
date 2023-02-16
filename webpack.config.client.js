@@ -2,11 +2,10 @@ const path = require('path')
 const glob = require('glob')
 const CopyPlugin = require('copy-webpack-plugin')
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
-
 const isDev = process.env.NODE_ENV !== 'production'
 
 const entryPoints = glob
-  .sync(path.resolve(__dirname, './src/client') + '/**/*.js', {
+  .sync(path.resolve(__dirname, './.generated') + '/**/*.client.js', {
     absolute: true,
   })
   .reduce((acc, path) => {
@@ -28,11 +27,15 @@ if (!isDev) {
 
 module.exports = {
   mode: isDev ? 'development' : 'production',
+  devtool: isDev ? 'inline-cheap-source-map' : false,
   entry: entryPoints,
   output: output,
   stats: 'errors-warnings',
   resolve: {
     extensions: ['.js', '.jsx'],
+  },
+  optimization: {
+    minimize: !isDev,
   },
   module: {
     rules: [{ test: /\.jsx?$/, loader: 'babel-loader' }],
@@ -42,10 +45,10 @@ module.exports = {
       patterns: [{ from: 'src/public', to: '../' }],
     }),
     new WebpackManifestPlugin({
-      publicPath: '',
       basePath: '',
+      publicPath: '',
       filter: file => {
-        return /\.mount\.js$/.test(file.name)
+        return /\.client?/.test(file.name)
       },
     }),
   ],

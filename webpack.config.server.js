@@ -14,7 +14,13 @@ module.exports = {
     extensions: ['.js', '.jsx'],
   },
   module: {
-    rules: [{ test: /\.jsx?$/, loader: 'babel-loader' }],
+    rules: [
+      { test: /\.jsx?$/, loader: 'babel-loader' },
+      {
+        test: /\.jsx?$/,
+        loader: path.resolve(__dirname, './webpack/island-loader.js'),
+      },
+    ],
   },
   externals: [nodeExternals()],
 }

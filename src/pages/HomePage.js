@@ -1,5 +1,5 @@
-import Counter from '../components/Counter.js'
 import BaseLayout from '../layouts/BaseLayout.js'
+import Counter from '../components/Counter.island.js'
 
 export default function () {
   const initData = { initValue: 10 }
@@ -9,9 +9,7 @@ export default function () {
         <section>
           <h1>Hello from Preact Islands</h1>
         </section>
-        <div id="counter" data-props={JSON.stringify(initData)}>
-          <Counter {...initData} />
-        </div>
+        <Counter {...initData} />
       </BaseLayout>
     </>
   )

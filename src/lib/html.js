@@ -1,11 +1,4 @@
-import manifest from '../../dist/js/manifest.json'
-
 export const withManifestBundles = ({ styles, body }) => {
-  const bundledScripts = Object.keys(manifest).map(key => {
-    const scriptPath = `/public/js/${manifest[key]}`
-    return `<script src=${scriptPath}></script>`
-  })
-
   return `<html lang="en">
     <head>
       <meta charset="UTF-8" />
@@ -18,6 +11,18 @@ export const withManifestBundles = ({ styles, body }) => {
     <body>
       ${body}
     </body>
-    ${bundledScripts.join('')}
+
+    <script defer>
+      fetch("/public/js/manifest.json")
+      .then(res=>res.json())
+      .then(data=>{
+        Object.keys(data).forEach(key=>{
+          const elm =document.createElement("script");
+          elm.src=\`/public/js/\${data[key]}\`
+          document.body.append(elm);
+        })
+      })
+    </script>
+
   </html>`
 }
