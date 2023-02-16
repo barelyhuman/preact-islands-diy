@@ -13,9 +13,12 @@ const mount = async (Component, elm) => {
 
 const main = async () => {
   // re-mount Counter as a client side component
-  const Counter = (await import('../components/Counter.js')).default
-
-  mount(Counter, document.getElementById('counter'))
+  // mount after 1 second, as an example to mount conditionally
+  // and fetching the js on request
+  setTimeout(async () => {
+    const Counter = (await import('../components/Counter.js')).default
+    mount(Counter, document.getElementById('counter'))
+  }, 1000)
 }
 
 main()

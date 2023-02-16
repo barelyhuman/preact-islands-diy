@@ -3,7 +3,7 @@ import manifest from '../../dist/js/manifest.json'
 export const withManifestBundles = ({ styles, body }) => {
   const bundledScripts = Object.keys(manifest).map(key => {
     const scriptPath = `/public/js/${manifest[key]}`
-    return `<script src=${scriptPath}></script>`
+    return `<script type="module" src=${scriptPath}></script>`
   })
 
   return `<html lang="en">
