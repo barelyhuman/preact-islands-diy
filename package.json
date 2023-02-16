@@ -5,9 +5,9 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "npm run build:server; npm run build:web",
-    "build:server": "cross-env NODE_ENV=production yarn webpack -c webpack.config.server.js",
-    "build:web": "cross-env NODE_ENV=production yarn webpack -c webpack.config.client.js",
-    "dev": "yarn dev:server; yarn dev:web; concurrently 'yarn:dev:* -- --watch'",
+    "build:server": "cross-env NODE_ENV=production npx webpack -c webpack.config.server.js",
+    "build:web": "cross-env NODE_ENV=production npx webpack -c webpack.config.client.js",
+    "dev": "npm run dev:server; npm run dev:web; concurrently 'npm:dev:* -- --watch'",
     "dev:nodemon": "nodemon --watch src --watch dist --ext js 'dist/server.js'",
     "dev:server": "webpack --config webpack.config.server.js",
     "dev:web": "webpack --config webpack.config.client.js",

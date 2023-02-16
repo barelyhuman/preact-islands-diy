@@ -3,6 +3,14 @@ export const withManifestBundles = ({ styles, body }) => {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <style>
+        html {
+          font-family: sans-serif;
+        }
+        * {
+          box-sizing: border-box;
+        }
+      </style>
       <style id="_goober">
         ${styles}
       </style>
@@ -11,18 +19,10 @@ export const withManifestBundles = ({ styles, body }) => {
     <body>
       ${body}
     </body>
-
-    <script defer>
-      fetch("/public/js/manifest.json")
-      .then(res=>res.json())
-      .then(data=>{
-        Object.keys(data).forEach(key=>{
-          const elm =document.createElement("script");
-          elm.src=\`/public/js/\${data[key]}\`
-          document.body.append(elm);
-        })
-      })
-    </script>
-
+    <script
+      type="application/javascript"
+      src="/public/js/client.js"
+      defer
+    ></script>
   </html>`
 }

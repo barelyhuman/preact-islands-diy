@@ -28,7 +28,13 @@ if (!isDev) {
 module.exports = {
   mode: isDev ? 'development' : 'production',
   devtool: isDev ? 'inline-cheap-source-map' : false,
-  entry: entryPoints,
+  entry: {
+    ...entryPoints,
+    client: {
+      filename: 'client.js',
+      import: Object.values(entryPoints),
+    },
+  },
   output: output,
   stats: 'errors-warnings',
   resolve: {
