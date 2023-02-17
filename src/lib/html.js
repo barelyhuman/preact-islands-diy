@@ -20,9 +20,8 @@ export const withManifestBundles = ({ styles, body }) => {
       ${body}
     </body>
     <script
-      type="application/javascript"
+      type="module"
       src="/public/js/client.js"
-      defer
     ></script>
   </html>`
 }

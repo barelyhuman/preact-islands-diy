@@ -18,6 +18,7 @@ const output = {
   filename: '[name].js',
   chunkFilename: '[id].js',
   path: path.resolve(__dirname, './dist/js'),
+  clean: true,
 }
 
 if (!isDev) {
@@ -27,6 +28,7 @@ if (!isDev) {
 
 module.exports = {
   mode: isDev ? 'development' : 'production',
+  target: 'web',
   devtool: isDev ? 'inline-cheap-source-map' : false,
   entry: {
     ...entryPoints,

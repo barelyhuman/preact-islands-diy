@@ -15,11 +15,11 @@ module.exports = {
   },
   module: {
     rules: [
-      { test: /\.jsx?$/, loader: 'babel-loader' },
       {
         test: /\.jsx?$/,
         loader: path.resolve(__dirname, './webpack/island-loader.js'),
       },
+      { test: /\.jsx?$/, loader: 'babel-loader' },
     ],
   },
   externals: [nodeExternals()],
