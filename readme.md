@@ -46,7 +46,7 @@ instead.
 > [evanw/esbuild#16](https://github.com/evanw/esbuild/issues/16)
 
 The variant uses a `build.mjs` script to handle something similar to what the
-webpack setup does but does is simpler in terms of setup and overall
+webpack setup does but is simpler in terms of setup and overall
 dependencies.
 
 Can be further trimmed down by maintaining a programmatic manifest instead of
