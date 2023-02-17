@@ -4,6 +4,8 @@
 
 [Getting Started](/getting-started)
 
+[Code](/the-code)
+
 [Github](https://github.com/barelyhuman/preact-islands-diy)
 
 </nav>
@@ -92,3 +94,19 @@ const main = () => {
 
 main()
 ```
+
+Similar to the server render phase, we use a helper from the preact to help
+hydrate a component. You could use `render` but then the actual element is
+already something that was rendered by the server, rendering it again would make
+no sense and so we just ask preact to try to add in the needed event and state
+data instead
+
+What I've explained above is called Partial Hydration, since you don't hydrate
+the entire app and just hydrate certain parts of it.
+
+## Into the Deep
+
+There's nothing more, that you need to know to understand how to make an island
+arch based app but let's now get into implementing this.
+
+[The Code &rarr;](the-code)

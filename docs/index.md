@@ -4,6 +4,8 @@
 
 [Getting Started](/getting-started)
 
+[Code](/the-code)
+
 [Github](https://github.com/barelyhuman/preact-islands-diy)
 
 </nav>
