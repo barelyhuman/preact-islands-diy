@@ -1,0 +1,72 @@
+<html><head><link rel="stylesheet" href="style.css" /></head><body><div id="search-container"></div><div class="layout-container"><section><nav>
+<p><a href="/preact-islands-diy/">Home</a></p>
+<p><a href="/preact-islands-diy/getting-started">Getting Started</a></p>
+<p><a href="https://github.com/barelyhuman/preact-islands-diy">Github</a></p>
+</nav>
+<h1>Getting Started</h1>
+<h2>Basic Implementation</h2>
+<p>The basic implementation can be generalized for most SSR + Client Hydration
+apps.</p>
+<p>Here's an overview</p>
+<ol>
+<li>Intially render the view on the server as a static page.</li>
+<li>Hydrate the app on client</li>
+</ol>
+<p>To go into the details of each.</p>
+<h3>Initial Server Render</h3>
+<p>In this step, you still build the component tree with whatever UI library you're
+using, Vue, React, Preact, Solid, etc. And then flatten the component tree to
+only have the static and immediately computable data. In this case, no
+sideeffects and state management based code is run.</p>
+<p>The output is a static html document that you can send to the client.</p>
+<p>Since this guide is tied to <a href="https://preactjs.com/">preact</a>, we're going to use
+a library from the preact team that helps us achieve this.</p>
+<p>Here's what a very rudimentary implementation of rendering a component on the
+server would look like.</p>
+<p>We're using <code>express.js</code> here as an example due to it being the first choice of
+most beginners, the process is mostly same for any other web server engine you
+pick up. Hapi, Koa, Fastify, etc.</p>
+<pre><code class="language-js">// server.js
+import { h } from 'preact'
+import preactRenderToString from 'preact-render-to-string'
+
+// ...remainig express.js setup
+
+const HomePage = () =&gt; {
+  return h('h1', {}, 'hello')
+}
+
+app.get('/', async (req, res) =&gt; {
+  res.send(preactRenderToString(h(HomePage, {})))
+})
+</code></pre>
+<p>Here most work is done by <code>preactRenderToString</code> , and all we are doing is
+writing components. With a little bit of bundling magic, we should be able to
+write in JSX to make it a little more friendly to work with.</p>
+<h3>Hydrate</h3>
+<p>Okay, so a term you'll see smart people use around a lot online.</p>
+<ul>
+<li>Partial Hydration</li>
+<li>Progressive Hydration</li>
+<li>add more as they find more such ways etc</li>
+</ul>
+<p>To be put simply, it's to bind the interactivity to a DOM element with
+<em>existing</em> state/effects/events</p>
+<p>This <em>existing</em> state/effects/events might be sent from the server, but if
+working with a component that can handle it's own and the logic is well
+contained in it, you just mount the component on the DOM with the necessary
+bindings.</p>
+<p>As an example, this might looks a little something like this</p>
+<pre><code class="language-js">// client.js
+import { hydrate } from 'preact'
+import Counter from './Counter'
+
+const main = () =&gt; {
+  // assuming the server rendered the component with the following ID as well.
+  const container = document.getElementById('counter')
+  hydrate(h(Counter, {}), document.getElementById('counter'))
+}
+
+main()
+</code></pre>
+</section></div><script src="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script><script>hljs.highlightAll()</script><script src="mudkip.js"></script></body></html>
