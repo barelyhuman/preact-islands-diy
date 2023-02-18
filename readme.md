@@ -1,13 +1,24 @@
 # preact-islands-diy
 
-# Variants
+## Variants
 
 - [webpack](#webpack)
 - [webpack-auto-inject](#webpack-auto-inject)
 - [esbuild](#esbuild)
 - [esbuild-auto-inject](#esbuild-auto-inject)
 
-# Guide
+## Reasoning
+
+This was built as a more modifiable approach for people who like to work with
+codebases they can modify when things break down and it tries to keep down the
+dependencies to the bare minimum where possible.
+
+Also a lot more about why was something **I** built is something you can about
+on the following blog post
+
+[reaper - Updates and Decisions January - 2023](https://reaper.is/writing/20230207-decisions-and-updates-january-2023#preact-ssr)
+
+## Guide
 
 You can read about what and how to build your own using the following
 [guide &rarr;](https://barelyhuman.github.io/preact-islands-diy/)
@@ -75,5 +86,6 @@ code on the server.
 
 - [x] A full guide of each folder and it's significance
 - [ ] Variants
+  - [x] Webpack
   - [x] ESBuild
   - [ ] Vite
