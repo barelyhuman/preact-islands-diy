@@ -82,6 +82,23 @@ This trims down the overall amount of tooling required as compared to webpack
 but also there's a dependency on babel to generate escodegen compatible island
 code on the server.
 
+## License
+
+[LICENSE](/license)
+
+## More / Similar
+
+- A real app approach with this starter
+  [real-app-islands-diy](https://github.com/barelyhuman/real-app-islands-diy)
+
+## Where to from here?
+
+- You can help improve the speed of the plugins in each of the `*-auto-inject`
+  branches
+- Create you own apps and let us know about your experience and other pain
+  points / frictions that you've experienced using this
+- Build your own amazing starter template and tell us about it
+
 # TODO
 
 - [x] A full guide of each folder and it's significance
