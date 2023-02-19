@@ -1,12 +1,10 @@
-import { transform } from '@babel/core'
-import pluginTransform from '@babel/plugin-transform-react-jsx'
-import * as acorn from 'acorn'
-import jsx from 'acorn-jsx'
+import _generate from '@babel/generator'
+import { parse as jsxParser } from '@babel/parser'
 import fs from 'fs/promises'
 
-const jsxParser = acorn.Parser.extend(jsx())
+const generate = _generate.default
 
-const preactImportAST = {
+const PREACT_IMPORT_AST = {
   type: 'ImportDeclaration',
   specifiers: [
     {
@@ -15,16 +13,61 @@ const preactImportAST = {
         type: 'Identifier',
         name: 'h',
       },
+      importKind: null,
       local: {
         type: 'Identifier',
         name: 'h',
       },
     },
   ],
+  importKind: 'value',
   source: {
-    type: 'Literal',
+    type: 'StringLiteral',
     value: 'preact',
   },
+}
+
+export async function sourceToIslands(sourcePath) {
+  const source = await fs.readFile(sourcePath, 'utf-8')
+  const ast = jsxParser(source, {
+    sourceType: 'module',
+    ecmaVersion: 2020,
+    plugins: ['jsx'],
+  })
+
+  const funcName = await getDefaultExportName(ast)
+  const client = buildIslandClient(funcName, sourcePath)
+  const server = buildIslandServer(funcName, ast)
+
+  return { client, server }
+}
+
+async function getDefaultExportName(ast) {
+  let funcName = ''
+  for (let i = 0; i <= ast.program.body.length; i++) {
+    const child = ast.program.body[i]
+    if (child.type !== 'ExportDefaultDeclaration') {
+      continue
+    }
+
+    if (child.declaration.type === 'Identifier') {
+      funcName = child.declaration.name
+      break
+    }
+
+    if (child.declaration.type === 'FunctionDeclaration') {
+      const func = child.declaration
+      if (func.id && func.id.type === 'Identifier') {
+        funcName = func.id.name
+      } else {
+        throw new Error(
+          `[island-loader] ${ogFilePath} doesn't export a named default`
+        )
+      }
+      break
+    }
+  }
+  return funcName
 }
 
 export function buildIslandClient(name, importPath) {
@@ -39,62 +82,28 @@ customElements.define("${islandName}", class Island${name} extends HTMLElement {
 })`
 }
 
-function getIslandName(name) {
-  return 'island' + name.replace(/([A-Z])/g, '-$1').toLowerCase()
-}
-
-const convertJSXToBrowser = code => {
-  const transformedCode = transform(code, {
-    sourceType: 'unambiguous',
-    plugins: [
-      [pluginTransform, { runtime: 'automatic', importSource: 'preact' }],
-    ],
-  }).code
-
-  return transformedCode
-}
-
-export async function wrapSourceWithIslandWrapper(ogFilePath) {
-  const fileData = await fs.readFile(ogFilePath, 'utf-8')
-
-  const ast = jsxParser.parse(convertJSXToBrowser(fileData), {
-    sourceType: 'module',
-    ecmaVersion: 2020,
-  })
-
-  const exportDefs = []
-
-  let funcName = ''
+function buildIslandServer(funcName, ast) {
   let hasPreactImport = false
   let hasHImport = false
 
-  // TODO: simplify
-  ast.body.forEach((child, index) => {
+  ast.program.body.forEach((child, index) => {
     if (child.type === 'ExportDefaultDeclaration') {
-      exportDefs.push(child)
-
       if (child.declaration.type === 'Identifier') {
-        funcName = child.declaration.name
-        ast.body.splice(index, 1)
+        ast.program.body.splice(index, 1)
         return
       }
 
       if (child.declaration.type === 'FunctionDeclaration') {
         const func = child.declaration
-        if (func.id && func.id.type === 'Identifier') {
-          funcName = func.id.name
-        } else {
-          throw new Error(
-            `[island-loader] ${ogFilePath} doesn't export a named default`
-          )
-        }
-        ast.body.splice(index, 1, func)
+        ast.program.body.splice(index, 1, func)
         return
       }
     }
-
     if (child.type === 'ImportDeclaration') {
-      if (child.source.type === 'Literal' && child.source.value === 'preact') {
+      if (
+        child.source.type === 'StringLiteral' &&
+        child.source.value === 'preact'
+      ) {
         hasPreactImport = true
       }
       if (
@@ -107,18 +116,18 @@ export async function wrapSourceWithIslandWrapper(ogFilePath) {
   })
 
   if (!hasHImport) {
-    ast.body.unshift(preactImportAST)
+    ast.program.body.unshift(PREACT_IMPORT_AST)
   }
 
-  ast.body.push(buildIslandServerAST(funcName))
-
-  return {
-    funcName,
-    ast,
-  }
+  ast.program.body.push(modifyASTForIslandWrapper(funcName))
+  return generate(ast).code
 }
 
-export function buildIslandServerAST(name) {
+function getIslandName(name) {
+  return 'island' + name.replace(/([A-Z])/g, '-$1').toLowerCase()
+}
+
+export function modifyASTForIslandWrapper(name) {
   const islandName = getIslandName(name)
   return {
     type: 'ExportDefaultDeclaration',
@@ -128,7 +137,6 @@ export function buildIslandServerAST(name) {
         type: 'Identifier',
         name: `Island${name}`,
       },
-      expression: false,
       generator: false,
       async: false,
       params: [
@@ -150,22 +158,25 @@ export function buildIslandServerAST(name) {
               },
               arguments: [
                 {
-                  type: 'Literal',
+                  type: 'StringLiteral',
                   value: islandName,
                 },
                 {
                   type: 'ObjectExpression',
                   properties: [
                     {
-                      type: 'Property',
+                      type: 'ObjectProperty',
                       method: false,
-                      shorthand: false,
-                      computed: false,
                       key: {
-                        type: 'Literal',
+                        type: 'StringLiteral',
+                        extra: {
+                          rawValue: 'data-props',
+                          raw: '"data-props"',
+                        },
                         value: 'data-props',
-                        raw: '"data-props"',
                       },
+                      computed: false,
+                      shorthand: false,
                       value: {
                         type: 'CallExpression',
                         callee: {
@@ -174,12 +185,11 @@ export function buildIslandServerAST(name) {
                             type: 'Identifier',
                             name: 'JSON',
                           },
+                          computed: false,
                           property: {
                             type: 'Identifier',
                             name: 'stringify',
                           },
-                          computed: false,
-                          optional: false,
                         },
                         arguments: [
                           {
@@ -187,15 +197,12 @@ export function buildIslandServerAST(name) {
                             name: 'props',
                           },
                         ],
-                        optional: false,
                       },
-                      kind: 'init',
                     },
                   ],
                 },
                 {
                   type: 'CallExpression',
-
                   callee: {
                     type: 'Identifier',
                     name: 'h',
@@ -210,10 +217,8 @@ export function buildIslandServerAST(name) {
                       name: 'props',
                     },
                   ],
-                  optional: false,
                 },
               ],
-              optional: false,
             },
           },
         ],
